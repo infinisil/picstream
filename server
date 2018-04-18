@@ -1,0 +1,27 @@
+#!/usr/bin/env bash
+set -x
+set -euo pipefail
+trap "kill 0" SIGINT
+
+tmp=$(mktemp -d)
+echo "$tmp"
+ncat -k -l 1500 -c "read n; echo \"Sending \$n to \$NCAT_REMOTE_PORT\" >&2; cat \"$tmp/\$n\"" &
+
+readarray -t files < "$1"
+count=${#files[@]}
+n=0
+next() {
+	echo "Loading ${files[$n]} to $1" >&2
+	ln -s "$(realpath "${files[$n]}")" $tmp/$1
+	n=$(( ( $n + 1 ) % $count ))
+}
+
+next cur
+next next
+
+while true; do
+	read
+	mv $tmp/next $tmp/cur
+	next next
+	echo
+done | ncat -l 1501 --send-only -k
