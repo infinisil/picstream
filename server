@@ -1,27 +1,28 @@
-#!/usr/bin/env bash
+#!/usr/bin/env nix-shell
+#!nix-shell -i bash -p python
 set -x
 set -euo pipefail
 trap "kill 0" SIGINT
 
 tmp=$(mktemp -d)
 echo "$tmp"
-ncat -k -l 1500 -c "read n; echo \"Sending \$n to \$NCAT_REMOTE_PORT\" >&2; cat \"$tmp/\$n\"" &
+cd "$tmp"
+python -m SimpleHTTPServer 1500 &
 
 readarray -t files < "$1"
 count=${#files[@]}
 n=0
 next() {
-	echo "Loading ${files[$n]} to $1" >&2
-	ln -s "$(realpath "${files[$n]}")" $tmp/$1
+	echo "Loading ${files[$n]} to cur.pic" >&2
+	ln -s "$(realpath "${files[$n]}")" $tmp/cur.pic
 	n=$(( ( $n + 1 ) % $count ))
 }
 
-next cur
-next next
+next
 
 while true; do
 	read
-	mv $tmp/next $tmp/cur
-	next next
+	rm $tmp/cur.pic
+	next
 	echo
 done | ncat -l 1501 --send-only -k

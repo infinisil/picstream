@@ -3,19 +3,10 @@ set -e
 trap "kill 0" SIGINT
 
 host=$1
-cur=0
-tmp=$(mktemp -d)
-get() {
-	echo $1 | ncat $host 1500 --no-shutdown > $tmp/$cur
-	cur=$((1 - $cur))
-}
-get cur
-get next
 
-feh -.Z -B black $tmp &
+feh -.Z -B black http://$host:1500/cur.pic http://$host:1500/cur.pic &
 
-ncat $host 1501 --recv-only | while read n; do
+ncat $host 1501 --recv-only | while read; do
 	kill -USR1 $!
-	get next
 done
 
