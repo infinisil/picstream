@@ -4,7 +4,7 @@ trap "kill 0" SIGINT
 
 host=$1
 
-feh -.Z -B black http://$host:1500/cur.pic http://$host:1500/cur.pic &
+feh -.Z -B black http://$host:1500/cur.pic http://$host:1500/cur.pic -A ";bash -c 'wget %F -O ~/pics/dl/\$(date +%s).png'" &
 
 ncat $host 1501 --recv-only | while read; do
 	kill -USR1 $!

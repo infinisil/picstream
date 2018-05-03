@@ -1,5 +1,4 @@
-#!/usr/bin/env nix-shell
-#!nix-shell -i bash -p python
+#!/usr/bin/env bash
 set -x
 set -euo pipefail
 trap "kill 0" SIGINT
@@ -7,7 +6,7 @@ trap "kill 0" SIGINT
 tmp=$(mktemp -d)
 echo "$tmp"
 cd "$tmp"
-python -m SimpleHTTPServer 1500 &
+python -m http.server 1500 &
 
 readarray -t files < "$1"
 count=${#files[@]}
