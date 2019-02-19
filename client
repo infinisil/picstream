@@ -1,10 +1,11 @@
-#!/usr/bin/env bash
+#!/usr/bin/env nix-shell
+#!nix-shell -i bash -p nmap feh wget --pure
 set -e
 trap "kill 0" SIGINT
 
 host=$1
 
-feh -.Z -B black http://$host:1500/cur.pic http://$host:1500/cur.pic -A ";bash -c 'wget %F -O ~/pics/dl/\$(date +%s).png'" &
+feh -g 1x1 -.Z -B black http://$host:1500/cur.pic http://$host:1500/cur.pic -A ";bash -c 'wget %F -O ~/pics/dl/\$(date +%s).png'" &
 
 ncat $host 1501 --recv-only | while read; do
 	kill -USR1 $!
