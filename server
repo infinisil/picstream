@@ -12,6 +12,9 @@ readarray -t files < "$1"
 count=${#files[@]}
 n=0
 next() {
+	while [ ! -f "${files[$n]}" ]; do
+		n=$(( ( $n + 1 ) % $count ))
+	done
 	echo "Loading ${files[$n]} to cur.pic" >&2
 	ln -s "$(realpath "${files[$n]}")" $tmp/cur.pic
 	n=$(( ( $n + 1 ) % $count ))
